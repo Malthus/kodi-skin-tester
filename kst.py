@@ -34,11 +34,6 @@ class MainWindow(object):
 
         self.loadsharedlanguage_action = LoadSharedLanguageAction()
         self.loadskin_action = LoadSkinAction()
-        self.loadactions = [
-            self.loadsharedlanguage_action,
-            self.loadskin_action
-        ]
-
         self.checkactions = [ 
             CheckLoadedSkinAction(),
             CheckIncludesAction(), 
@@ -53,47 +48,36 @@ class MainWindow(object):
 
         self.messages = ThreadSafeConsole(master = self.window, width = 100, height = 24)
         self.messages.place(x = 300, y = 120, width = 870, height = 480)
-        
         text_scrollbar_x = tk.Scrollbar(master = self.window, orient = "horizontal", command = self.messages.xview)
         text_scrollbar_x.place(x = 300, y = 600, width = 870, height = 20)
         text_scrollbar_y = tk.Scrollbar(master = self.window, orient = "vertical", command = self.messages.yview)
         text_scrollbar_y.place(x = 1170, y = 120, width = 20, height = 480)
-        
         self.messages.configure(xscrollcommand = text_scrollbar_x.set)
         self.messages.configure(yscrollcommand = text_scrollbar_y.set)
-        
+
         self.addmessage("action", "Starting Kodi Skin Tester")
         self.addmessage("info", "- Made by Marijn Hubert to test the Kodi skin 'Revolve'")
         self.addmessage("warning", "- Use this Kodi Skin Tester and its results at your own risk")
-        
         self.loadconfiguration()
         
         self.sharedlanguagefilelabel = tk.Label(self.window, textvariable = self.sharedlanguagefile, foreground = 'red', anchor = 'w')
         self.sharedlanguagefilelabel.place(x = 310, y = 10, width = 590, height = 30)
-        self.setsharedlanguagebutton = tk.Button(master = self.window, text = "Select shared language file", command = self.getsharedlanguagefile)
-        self.setsharedlanguagebutton.place(x = 910, y = 10, width = 280, height = 30)
-        tooltip = Tooltip(self.setsharedlanguagebutton)
-        self.setsharedlanguagebutton.bind("<Enter>", partial(tooltip.show, SELECTSHAREDLANGUAGE_TOOLTIP))
-        self.setsharedlanguagebutton.bind("<Leave>", partial(tooltip.hide))
-
         self.baseskindirectorylabel = tk.Label(self.window, textvariable = self.baseskindirectory, foreground = 'red', anchor = 'w')
         self.baseskindirectorylabel.place(x = 310, y = 40, width = 590, height = 30)
-        self.setskinbutton = tk.Button(master = self.window, text = "Select base skin folder", command = self.getbaseskindirectory)
-        self.setskinbutton.place(x = 910, y = 40, width = 280, height = 30)
-        tooltip = Tooltip(self.setskinbutton)
-        self.setskinbutton.bind("<Enter>", partial(tooltip.show, SELECTSKINDIRECTORY_TOOLTIP))
-        self.setskinbutton.bind("<Leave>", partial(tooltip.hide))
-
         self.languagedirectorylabel = tk.Label(self.window, textvariable = self.languagedirectory, foreground = 'red', anchor = 'w')
         self.languagedirectorylabel.place(x = 310, y = 70, width = 590, height = 30)
 
         self.loadbuttonframe = tk.Frame()
-        for index, action in enumerate(self.loadactions):
-            button = tk.Button(master = self.loadbuttonframe, text = action.getname(), command = partial(self.executeloadaction, action), width = 60, height = 3)
-            button.place(x = 0, y = 30 * index, width = 280, height = 30)
-            tooltip = Tooltip(button)
-            button.bind("<Enter>", partial(tooltip.show, action.description))
-            button.bind("<Leave>", partial(tooltip.hide))
+        self.loadsharedlanguagebutton = tk.Button(master = self.loadbuttonframe, text = "Load shared language file", command = self.loadsharedlanguagefromselectedfile)
+        self.loadsharedlanguagebutton.place(x = 0, y = 0, width = 280, height = 30)
+        tooltip = Tooltip(self.loadsharedlanguagebutton)
+        self.loadsharedlanguagebutton.bind("<Enter>", partial(tooltip.show, SELECTSHAREDLANGUAGE_TOOLTIP))
+        self.loadsharedlanguagebutton.bind("<Leave>", partial(tooltip.hide))
+        self.loadskinbutton = tk.Button(master = self.loadbuttonframe, text = "Load skin from folder", command = self.loadskinfromselecteddirectory)
+        self.loadskinbutton.place(x = 0, y = 30, width = 280, height = 30)
+        tooltip = Tooltip(self.loadskinbutton)
+        self.loadskinbutton.bind("<Enter>", partial(tooltip.show, SELECTSKINDIRECTORY_TOOLTIP))
+        self.loadskinbutton.bind("<Leave>", partial(tooltip.hide))
         self.loadbuttonframe.place(x = 10, y = 10, width = 280, height = 100)
 
         self.checkbuttonframe = tk.Frame()
@@ -111,24 +95,25 @@ class MainWindow(object):
         self.exitbutton.bind("<Enter>", partial(tooltip.show, CLOSEPROGRAM_TOOLTIP))
         self.exitbutton.bind("<Leave>", partial(tooltip.hide))
 
-        for action in self.loadactions:
-            self.executeloadaction(action)
-
+        self.executeloadaction(self.loadsharedlanguage_action)
+        self.executeloadaction(self.loadskin_action)
         self.window.mainloop()
 
 
-    def getsharedlanguagefile(self):
+    def loadsharedlanguagefromselectedfile(self):
         newlanguagefile = tkfiledialog.askopenfilename()
         if newlanguagefile:
             self.sharedlanguagefile.set(newlanguagefile)
             self.colorizesharedlanguagefilelabel()
+            self.executeloadaction(self.loadsharedlanguage_action)
 
 
-    def getbaseskindirectory(self):
-        newskindirectory = tkfiledialog.askdirectory()
+    def loadskinfromselecteddirectory(self):
+        newskindirectory = tkfiledialog.askdirectory(initialdir = self.baseskindirectory)
         if newskindirectory:
             self.baseskindirectory.set(newskindirectory)
             self.colorizebaseskindirectorylabel()
+            self.executeloadaction(self.loadskin_action)
 
 
     def executeloadaction(self, action):
@@ -140,7 +125,6 @@ class MainWindow(object):
         elif type(action) is LoadSkinAction:
             self.skin = action.skin
             self.colorizebaseskindirectorylabel()
-            
 
         self.addmessage("info", "Done")
 

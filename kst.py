@@ -15,6 +15,7 @@ from action_checkincludes import CheckIncludesAction
 from action_checkxmlfiles import CheckXmlFilesAction
 from action_checkmediafiles import CheckMediaFilesAction
 from action_checkmessages import CheckMessagesAction
+from action_checkvariables import CheckVariablesAction
 
 
 SELECTSHAREDLANGUAGE_TOOLTIP = "Select the standard (shared) language file.\n" + "This shared language file should contain all the messages that are available in Kodi by default."
@@ -39,7 +40,8 @@ class MainWindow(object):
             CheckIncludesAction(), 
             CheckXmlFilesAction(), 
             CheckMediaFilesAction(),
-            CheckMessagesAction()
+            CheckMessagesAction(),
+            CheckVariablesAction()
         ]
 
         self.window.title("Kodi Skin Tester")

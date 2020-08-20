@@ -74,6 +74,8 @@ class SkinContentHandler(ContentHandler):
         self.skin.addons.append(addon)
         if addon.name == 'xbmc.gui':
             self.skin.xbmcguiversion = addon.version
+            self.skin.kodiversion = kodi.getkodiversion(addon.version)
+            self.skin.kodiname = kodi.getkodiname(addon.version)
 
 
 class LoadSkinAction(Action):
@@ -118,13 +120,14 @@ class LoadSkinAction(Action):
     
         messagecallback("info", "- Skin name: " + self.skin.name)
         messagecallback("info", "- Skin version: " + self.skin.version)
+        messagecallback("info", "- Target Kodi version: " + self.skin.kodiname + " (" + str(self.skin.kodiversion) + ")")
         messagecallback("info", "- Skin resolution(s): " + ", ".join([ resolution.aspect + " (" + resolution.directory + ")" for resolution in self.skin.resolutions ]))
 
 
     def loadlanguagefile(self, messagecallback, skinbasedirectory, skinlanguagedirectory):
         messagecallback("info", "- Skin language directory: " + skinlanguagedirectory)
         messagecallback("info", "- Skin language file: " + kodi.LANGUAGE_FILENAME)
-        
+
         self.skin.language = kodi.readlanguagefile(join(skinbasedirectory, skinlanguagedirectory, kodi.LANGUAGE_FILENAME))
 
         messagecallback("info", "- Number of skin language entries: " + str(len(self.skin.language.strings)))

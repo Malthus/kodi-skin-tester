@@ -58,6 +58,8 @@ class Skin():
         self.language = None
         self.skinlanguagedirectory = skinlanguagedirectory
         self.xbmcguiversion = ""
+        self.kodiversion = 0
+        self.kodiname = ""
         self.addons = []
         self.assets = []
 
@@ -111,6 +113,56 @@ class Asset():
     def __init__(self, type, file):
         self.type = type
         self.file = file
+
+
+def getkodiversion(guiversion):
+    kodiversion = 0
+        
+    if guiversion == '4.0.0':
+        kodiversion = 12
+    elif guiversion == '5.0.1':
+        kodiversion = 13
+    elif guiversion == '5.3.0':
+        kodiversion = 14
+    elif guiversion == '5.9.0':
+        kodiversion = 15
+    elif guiversion == '5.9.0':
+        kodiversion = 15
+    elif guiversion == '5.10.0':
+        kodiversion = 16
+    elif guiversion == '5.12.0':
+        kodiversion = 17
+    elif guiversion == '5.14.0':
+        kodiversion = 18
+    elif guiversion == '5.15.0':
+        kodiversion = 19
+
+    return kodiversion
+
+
+def getkodiname(guiversion):
+    kodiname = ''
+        
+    if guiversion == '4.0.0':
+        kodiname = 'XBMC Frodo'
+    elif guiversion == '5.0.1':
+        kodiname = 'XBMC Gotham'
+    elif guiversion == '5.3.0':
+        kodiname = 'Kodi Helix'
+    elif guiversion == '5.9.0':
+        kodiname = 'Kodi Isengard'
+    elif guiversion == '5.9.0':
+        kodiname = 'Kodi Isengard'
+    elif guiversion == '5.10.0':
+        kodiname = 'Kodi Jarvis'
+    elif guiversion == '5.12.0':
+        kodiname = 'Kodi Krypton'
+    elif guiversion == '5.14.0':
+        kodiname = 'Kodi Leia'
+    elif guiversion == '5.15.0':
+        kodiname = 'Kodi Matrix'
+
+    return kodiname
 
 
 def readlanguagefile(languagefile):

@@ -25,7 +25,11 @@ class CheckLoadedSkinAction(Action):
         messagecallback("info", "- Skin name: " + skin.name)
         messagecallback("info", "- Skin id: " + skin.id)
         messagecallback("info", "- Skin version: " + skin.version)
+        messagecallback("info", "- Skin XBMC GUI version: " + skin.xbmcguiversion)
+        messagecallback("info", "- Target Kodi version: " + skin.kodiname + " (" + str(skin.kodiversion) + ")")
         messagecallback("info", "- Skin resolution(s): " + ", ".join([ resolution.aspect + " (" + resolution.directory + ")" for resolution in skin.resolutions ]))
         messagecallback("info", "- Skin asset(s): " + ", ".join([ asset.file + " (" + asset.type + ")" for asset in skin.assets ]))
-        messagecallback("info", "- Skin XBMC GUI version: " + skin.xbmcguiversion)
+        messagecallback("info", "- Skin language directory: " + skin.skinlanguagedirectory)
+        messagecallback("info", "- Skin language file: " + kodi.LANGUAGE_FILENAME)
+        messagecallback("info", "- Number of skin language entries: " + str(len(skin.language.strings)))
 

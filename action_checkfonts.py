@@ -76,7 +76,9 @@ class CheckFontsAction(Action):
         super().__init__(
             name = "Check fonts", 
             function = self.checkfonts, 
-            description = "Check fontsets and font files",
+            description = "*WIP*\nCheck fontsets and font files for\n" + 
+                    "- unused fonts (font definitions that are never used);\n" + 
+                    "- missing fonts (font references that do not exist as a font definition).",
             arguments = ['skin'])
 
 

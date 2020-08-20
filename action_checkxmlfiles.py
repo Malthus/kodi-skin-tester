@@ -27,7 +27,7 @@ class CheckXmlFilesAction(Action):
         super().__init__(
             name = "Check files", 
             function = self.checkfiles, 
-            description = "Check default skin files and include files",
+            description = "*WIP*\nCheck default skin files and include files",
             arguments = ['skin'])
 
 

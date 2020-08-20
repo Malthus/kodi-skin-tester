@@ -1,6 +1,6 @@
 
 from os import listdir
-from os.path import join, isdir, isfile, sep
+from os.path import join, isdir, isfile
 from xml.sax import ContentHandler, parseString
 
 from action import Action
@@ -74,7 +74,7 @@ class CheckMediaFilesAction(Action):
         
         for asset in skin.assets:
             file = join(baseskindirectory, asset.file)
-            self.mediafiles.add(file.replace("/", sep))
+            self.mediafiles.add(self.processfile(file))
 
 
     def parsemediafiles(self, resolution, messagecallback):
@@ -114,7 +114,7 @@ class CheckMediaFilesAction(Action):
         for file in files:
             fullfile = join(directory, file)
             if isfile(fullfile) and (file.endswith(".jpg") or file.endswith(".jpeg") or file.endswith(".png")):
-                self.presentfiles.append(fullfile)
+                self.presentfiles.append(self.processfile(fullfile))
             elif isdir(fullfile):
                 self.readmediafilesfromdirectory(fullfile, messagecallback)
     
@@ -145,7 +145,11 @@ class CheckMediaFilesAction(Action):
             file = referencedfile.replace("special://skin", baseskindirectory)
         else:
             file = join(baseskindirectory, "media", referencedfile)
-        return file.replace("/", sep)
+        return self.processfile(file)
 
+    def processfile(self, file):
+        return file.replace('\\', '/')
+
+    
 
 

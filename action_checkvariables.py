@@ -44,16 +44,32 @@ class VariableContentHandler(ContentHandler):
     def parseforvariablereference(self, content):
         index = content.find(kodi.VARIABLE_IDENTIFIER)
         while index >= 0:
-            start = index + len(kodi.VARIABLE_IDENTIFIER) + 1
-            end = content.find(']', start)
-            name = content[start:end]
+            start = index + len(kodi.VARIABLE_IDENTIFIER)
+            end = self.findendofreference(content, start)
+            parts = content[start + 1:end - 1].split(sep = ',')
+            name = parts[0]
 
-            variable = Variable()
-            variable.name = name
-            variable.unit = self.unit
-            self.references.append(variable)
+            if name:
+                variable = Variable()
+                variable.name = name.strip()
+                variable.unit = self.unit
+                self.references.append(variable)
+            else:
+                self.messages.append("Nameless variable reference in unit '" + self.unit + "'")
 
             index = content.find(kodi.VARIABLE_IDENTIFIER, end)
+
+
+    def findendofreference(self, content, start):
+        index = start
+        count = 0
+        
+        while (index == start or count > 0) and index < len(content):
+            count = count + (1 if content[index] == '[' else 0)
+            count = count - (1 if content[index] == ']' else 0)
+            index += 1
+
+        return index
 
 
 class CheckVariablesAction(Action):
@@ -111,7 +127,7 @@ class CheckVariablesAction(Action):
         for startindex, definition in enumerate(self.definitions):
             for index in range(startindex + 1, len(self.definitions)):
                 if (definition.name == self.definitions[index].name):
-                    messagecallback("warning", "- Duplicate include: " + definition.name + " (" + definition.unit.name + " ~ " + self.definitions[index].unit.name + ")")
+                    messagecallback("warning", "- Duplicate variable: " + definition.name + " (" + definition.unit.name + " ~ " + self.definitions[index].unit.name + ")")
 
 
     def findunusedvariables(self, resolution, messagecallback):

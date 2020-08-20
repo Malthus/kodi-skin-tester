@@ -16,6 +16,7 @@ from action_checkxmlfiles import CheckXmlFilesAction
 from action_checkmediafiles import CheckMediaFilesAction
 from action_checkmessages import CheckMessagesAction
 from action_checkvariables import CheckVariablesAction
+from action_checkexpressions import CheckExpressionsAction
 
 
 SELECTSHAREDLANGUAGE_TOOLTIP = "Select the standard (shared) language file.\n" + "This shared language file should contain all the messages that are available in Kodi by default."
@@ -41,7 +42,8 @@ class MainWindow(object):
             CheckXmlFilesAction(), 
             CheckMediaFilesAction(),
             CheckMessagesAction(),
-            CheckVariablesAction()
+            CheckVariablesAction(),
+            CheckExpressionsAction()
         ]
 
         self.window.title("Kodi Skin Tester")
@@ -57,9 +59,10 @@ class MainWindow(object):
         self.messages.configure(xscrollcommand = text_scrollbar_x.set)
         self.messages.configure(yscrollcommand = text_scrollbar_y.set)
 
-        self.addmessage("action", "Starting Kodi Skin Tester")
+        self.addmessage("action", "Starting Kodi Skin Tester...")
         self.addmessage("info", "- Made by Marijn Hubert to test the Kodi skin 'Revolve'")
         self.addmessage("warning", "- Use this Kodi Skin Tester and its results at your own risk")
+        self.addmessage("info", "Done")
         self.loadconfiguration()
         
         self.sharedlanguagefilelabel = tk.Label(self.window, textvariable = self.sharedlanguagefile, foreground = 'red', anchor = 'w')

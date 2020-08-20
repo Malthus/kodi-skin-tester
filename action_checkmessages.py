@@ -18,8 +18,10 @@ class MessageContentHandler(ContentHandler):
     def startElement(self, tag, attributes):
         if tag == kodi.LABEL_ELEMENT:
             self.insidelabelelement = True
-        if tag == kodi.PARAM_ELEMENT:
-            self.parseparam(attributes)
+        elif tag == kodi.PARAM_ELEMENT and 'value' in attributes:
+            self.parselocalize(attributes['value'])
+        elif tag == kodi.VIEWTYPE_ELEMENT and 'label' in attributes:
+            self.parsemessagelabel(attributes['label'])
 
 
     def endElement(self, tag):
@@ -30,16 +32,14 @@ class MessageContentHandler(ContentHandler):
         if self.insidelabelelement and content.isdigit():
             self.messagecodes.append(int(content))
         else:
-            self.parsemessagelabel(content)
+            self.parselocalize(content)
 
 
     def parsemessagelabel(self, content):
-        self.parselocalize(content)
-
-
-    def parseparam(self, attributes):
-        if 'value' in attributes:
-            self.parselocalize(attributes['value'])
+        if content.isdigit():
+            self.messagecodes.append(int(content))
+        else:
+            self.parselocalize(content)
 
 
     def parselocalize(self, content):
@@ -73,7 +73,10 @@ class CheckMessagesAction(Action):
         super().__init__(
             name = "Check language files and messages", 
             function = self.checkmessages, 
-            description = "Check messages for localization errors, and check language files for unused or duplicate  entries",
+            description = "Check messages in skin-specific language file for:\n" + 
+                    "- duplicate entries within the skin-specific language file (texts that appear multiple times in the skin-specific language file);\n" + 
+                    "- duplicate entries with the standard language file (texts that appear in both the skin-specific and the standard language file);\n" + 
+                    "- unused entries (texts with numbers that are never used).",
             arguments = ['skin', 'sharedlanguage'])
 
 
@@ -121,7 +124,7 @@ class CheckMessagesAction(Action):
         for languagekey in skin.language.strings:
             if languagekey not in self.messagecodes:
                 messagecallback("message", "- Unused language entry '" + str(languagekey) + "' (" + skin.language.strings[languagekey] + ")")
-       
+
         if sharedlanguage:
             sharedlanguagevalues = set([languagevalue for languagekey, languagevalue in sharedlanguage.strings.items()])
             for languagekey, languagevalue in skin.language.strings.items():

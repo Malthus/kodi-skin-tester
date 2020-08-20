@@ -12,8 +12,8 @@ class ThreadSafeConsole(tk.Text):
         self.queue = Queue()
         
         self.tag_config("action", foreground ="blue", wrap = tk.NONE)
-        self.tag_config("info", foreground ="black", wrap = tk.NONE)
-        self.tag_config("message", foreground = "dark green", wrap = tk.NONE)
+        self.tag_config("info", foreground ="gray", wrap = tk.NONE)
+        self.tag_config("message", foreground = "black", wrap = tk.NONE)
         self.tag_config("warning", foreground = "dark orange", wrap = tk.NONE)
         self.tag_config("error", foreground = "red", wrap = tk.NONE)
         self.configure(state = "disabled")

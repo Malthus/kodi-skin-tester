@@ -59,6 +59,7 @@ class IncludeContentHandler(ContentHandler):
                 self.messages.append("Failed to determine the type of include '" + self.lastinclude.name + "'")
             self.lastinclude = None
 
+
     def characters(self, content):
         if self.lastinclude and self.lastinclude.type == REFERENCE_TYPE and self.lastinclude.name == "-":
             self.lastinclude.name = content

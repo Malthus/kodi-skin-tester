@@ -11,10 +11,11 @@ from tooltip import Tooltip
 from action_loadsharedlanguage import LoadSharedLanguageAction
 from action_loadskin import LoadSkinAction
 from action_checkloadedskin import CheckLoadedSkinAction
+from action_checkincludes import CheckIncludesAction
 from action_checkxmlfiles import CheckXmlFilesAction
 from action_checkmediafiles import CheckMediaFilesAction
 from action_checkmessages import CheckMessagesAction
-from action_checkincludes import CheckIncludesAction
+from action_checkfonts import CheckFontsAction
 from action_checkvariables import CheckVariablesAction
 from action_checkexpressions import CheckExpressionsAction
 
@@ -38,10 +39,11 @@ class MainWindow(object):
         self.loadskin_action = LoadSkinAction()
         self.checkactions = [ 
             CheckLoadedSkinAction(),
+            CheckIncludesAction(), 
             CheckXmlFilesAction(), 
             CheckMediaFilesAction(),
             CheckMessagesAction(),
-            CheckIncludesAction(), 
+            CheckFontsAction(),
             CheckVariablesAction(),
             CheckExpressionsAction()
         ]

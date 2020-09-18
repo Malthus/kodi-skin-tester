@@ -16,6 +16,7 @@ class Include():
         self.name = ""
         self.type = ""
         self.parameters = {}
+        self.nested = False
         self.unit = None
         self.includes = []
 
@@ -28,7 +29,9 @@ class IncludeContentHandler(ContentHandler):
         self.references = []
         self.messages = []
 
-        self.lastinclude = None
+        self.lastdefinition = None
+        self.lastreferences = []
+        self.lastfileinclude = False
 
 
     def startElement(self, tag, attributes):
@@ -38,70 +41,85 @@ class IncludeContentHandler(ContentHandler):
                 self.parsedefinition(attributes)
             elif includetype == REFERENCE_TYPE:
                 self.parsereference(attributes)
+            elif includetype == FILE_TYPE:
+                self.lastfileinclude = True
         elif tag == kodi.PARAM_ELEMENT:
             self.parseparam(attributes)
+        elif tag == kodi.NESTED_ELEMENT:
+            self.parsenested()
         else:
-            if self.lastinclude and self.lastinclude.type == DEFINITION_TYPE:
-                self.definitions.append(self.lastinclude)
-            if self.lastinclude and self.lastinclude.type == REFERENCE_TYPE:
-                self.messages.append("Unexpected new start-tag in include '" + self.lastinclude.name + "'")
-            
-            self.resetdefinition()
+            if len(self.lastreferences) > 0:
+                self.lastreferences[-1].nested = True
 
 
     def endElement(self, tag):
-        if self.lastinclude and tag == kodi.INCLUDE_ELEMENT:
-            if self.lastinclude.type == DEFINITION_TYPE:
-                self.definitions.append(self.lastinclude)
-            elif self.lastinclude.type == REFERENCE_TYPE:
-                self.references.append(self.lastinclude)
+        if tag == kodi.INCLUDE_ELEMENT:
+            if len(self.lastreferences) > 0:
+                self.lastreferences.pop()
+            elif self.lastdefinition:
+                self.lastdefinition = None
+            elif self.lastfileinclude:
+                self.lastfileinclude = False
             else:
-                self.messages.append("Failed to determine the type of include '" + self.lastinclude.name + "'")
-            self.lastinclude = None
+                self.messages.append("End of include without matching start-tag")
 
 
     def characters(self, content):
-        if self.lastinclude and self.lastinclude.type == REFERENCE_TYPE and self.lastinclude.name == "-":
-            self.lastinclude.name = content
+        if len(self.lastreferences) > 0 and self.lastreferences[-1].name == "-":
+            self.lastreferences[-1].name = content
 
 
     def parsedefinition(self, attributes):
-        self.lastinclude = Include()
-        self.lastinclude.name = attributes['name']
-        self.lastinclude.type = DEFINITION_TYPE
-        self.lastinclude.unit = self.unit
+        newdefintion = Include()
+        newdefintion.name = attributes['name']
+        newdefintion.type = DEFINITION_TYPE
+        newdefintion.unit = self.unit
+        
+        self.lastdefinition = newdefintion
+        self.definitions.append(newdefintion)
         
         
     def parsereference(self, attributes):
-        self.lastinclude = Include()
-        self.lastinclude.name = attributes['content'] if 'content' in attributes else "-"
-        self.lastinclude.type = REFERENCE_TYPE
-        self.lastinclude.unit = self.unit
+        newreference = Include()
+        newreference.name = attributes['content'] if 'content' in attributes else "-"
+        newreference.type = REFERENCE_TYPE
+        newreference.unit = self.unit
+        
+        self.lastreferences.append(newreference)
+        self.references.append(newreference)
+        if self.lastdefinition:
+            self.lastdefinition.includes.append(newreference)
 
+
+    def parsenested(self):
+        if self.lastdefinition:
+            self.lastdefinition.nested = True
+        else:
+            self.messages.append("Failed to find matching include definition with nested tag")
+    
 
     def parseparam(self, attributes):
-        if self.lastinclude is not None:
-            if 'value' in attributes and self.lastinclude.type != DEFINITION_TYPE and self.lastinclude.type != FILE_TYPE:
-                self.lastinclude.parameters[attributes['name']] = attributes['value']
-                self.lastinclude.type = REFERENCE_TYPE
-            elif 'default' in attributes and self.lastinclude.type != REFERENCE_TYPE and self.lastinclude.type != FILE_TYPE:
-                self.lastinclude.parameters[attributes['name']] = attributes['default']
-                self.lastinclude.type = DEFINITION_TYPE
-            elif 'name' in attributes:
-                self.lastinclude.parameters[attributes['name']] = None
-
-
-    def resetdefinition(self):
-        self.lastinclude = None
-
+        if len(self.lastreferences) > 0:
+            if 'value' in attributes:
+                self.lastreferences[-1].parameters[attributes['name']] = attributes['value']
+            if 'default' in attributes:
+                self.messages.append("Default value in include reference '" + self.lastreferences[-1].name + "'")
+        elif self.lastdefinition:
+            if 'default' in attributes:
+                self.lastdefinition.parameters[attributes['name']] = attributes['default']
+            if 'name' in attributes and not 'default' in attributes:
+                self.lastdefinition.parameters[attributes['name']] = None
+            if 'value' in attributes:
+                self.messages.append("Normal value in include definition '" + self.lastdefinition.name + "'")
+    
 
     def determineincludetype(self, attributes):
         type = REFERENCE_TYPE
     
-        if "content" in attributes:
-            type = REFERENCE_TYPE
-        elif "name" in attributes:
+        if "name" in attributes:
             type = DEFINITION_TYPE
+        elif "content" in attributes:
+            type = REFERENCE_TYPE
         elif "file" in attributes:
             type = FILE_TYPE
 
@@ -208,11 +226,11 @@ class CheckIncludesAction(Action):
                     definitionparam = definitionparams[definitionindex] if definitionindex < len(definitionparams) else None
                     referenceparam = referenceparams[referenceindex] if referenceindex < len(referenceparams) else None
                 
-                    if (definitionparam is not None and referenceparam is None) or definitionparam < referenceparam:
+                    if definitionparam is not None and (referenceparam is None or definitionparam < referenceparam):
                         if definition.parameters[definitionparam] is None:
                             messagecallback("warning", "- Missing (unassigned) parameter '" + definitionparam +"' without default value in reference: " + reference.name + " (" + reference.unit.name + ")")               
                         definitionindex = definitionindex + 1
-                    elif (definitionparam is None and referenceparam is not None) or definitionparam > referenceparam:
+                    elif referenceparam is not None and (definitionparam is None or definitionparam > referenceparam):
                         messagecallback("message", "- Unknown (undeclared) parameter '" + referenceparam + "' in reference: " + reference.name + " (" + reference.unit.name + ")")               
                         referenceindex = referenceindex + 1
                     else:

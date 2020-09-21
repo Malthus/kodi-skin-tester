@@ -20,8 +20,9 @@ from action_checkvariables import CheckVariablesAction
 from action_checkexpressions import CheckExpressionsAction
 
 
-SELECTSHAREDLANGUAGE_TOOLTIP = "Select the standard (shared) language file.\n" + "This shared language file should contain all the messages that are available in Kodi by default."
-SELECTSKINDIRECTORY_TOOLTIP = "Select the base directory that contains the skin files.\n" + "The base directory of the skin is the directory with the skin's addon.xml file."
+LOADSHAREDLANGUAGEFILE_TOOLTIP = "Select and load the standard (shared) language file.\n" + "This shared language file should contain all the messages that are available in Kodi by default."
+LOADSKINFROMDIRECTORY_TOOLTIP = "Select the base directory that contains the skin files and load the skin from this directory.\n" + "The base directory of the skin is the directory with the skin's addon.xml file."
+RELOADSKIN_TOOLTIP = "Reload the skin files from the base directory.\n" + "The base directory of the skin is the directory with the skin's addon.xml file."
 CLOSEPROGRAM_TOOLTIP = "Exit this Kodi Skin Tester program."
 CONFIGFILENAME = 'kst.ini'
 
@@ -78,13 +79,18 @@ class MainWindow(object):
         self.loadsharedlanguagebutton = tk.Button(master = self.loadbuttonframe, text = "Load shared language file", command = self.loadsharedlanguagefromselectedfile)
         self.loadsharedlanguagebutton.place(x = 0, y = 0, width = 280, height = 30)
         tooltip = Tooltip(self.loadsharedlanguagebutton)
-        self.loadsharedlanguagebutton.bind("<Enter>", partial(tooltip.show, SELECTSHAREDLANGUAGE_TOOLTIP))
+        self.loadsharedlanguagebutton.bind("<Enter>", partial(tooltip.show, LOADSHAREDLANGUAGEFILE_TOOLTIP))
         self.loadsharedlanguagebutton.bind("<Leave>", partial(tooltip.hide))
         self.loadskinbutton = tk.Button(master = self.loadbuttonframe, text = "Load skin from folder", command = self.loadskinfromselecteddirectory)
         self.loadskinbutton.place(x = 0, y = 30, width = 280, height = 30)
         tooltip = Tooltip(self.loadskinbutton)
-        self.loadskinbutton.bind("<Enter>", partial(tooltip.show, SELECTSKINDIRECTORY_TOOLTIP))
+        self.loadskinbutton.bind("<Enter>", partial(tooltip.show, LOADSKINFROMDIRECTORY_TOOLTIP))
         self.loadskinbutton.bind("<Leave>", partial(tooltip.hide))
+        self.reloadskinbutton = tk.Button(master = self.loadbuttonframe, text = "Reload skin files", command = self.reloadskin)
+        self.reloadskinbutton.place(x = 0, y = 60, width = 280, height = 30)
+        tooltip = Tooltip(self.reloadskinbutton)
+        self.reloadskinbutton.bind("<Enter>", partial(tooltip.show, RELOADSKIN_TOOLTIP))
+        self.reloadskinbutton.bind("<Leave>", partial(tooltip.hide))
         self.loadbuttonframe.place(x = 10, y = 10, width = 280, height = 100)
 
         self.checkbuttonframe = tk.Frame()
@@ -111,7 +117,7 @@ class MainWindow(object):
         newlanguagefile = tkfiledialog.askopenfilename()
         if newlanguagefile:
             self.sharedlanguagefile.set(newlanguagefile)
-            self.colorizesharedlanguagefilelabel()
+            self.colorsharedlanguagefilelabel()
             self.executeloadaction(self.loadsharedlanguage_action)
 
 
@@ -119,8 +125,12 @@ class MainWindow(object):
         newskindirectory = tkfiledialog.askdirectory(initialdir = self.baseskindirectory)
         if newskindirectory:
             self.baseskindirectory.set(newskindirectory)
-            self.colorizebaseskindirectorylabel()
+            self.colorbaseskindirectorylabel()
             self.executeloadaction(self.loadskin_action)
+
+
+    def reloadskin(self):
+        self.executeloadaction(self.loadskin_action)
 
 
     def executeloadaction(self, action):
@@ -128,10 +138,10 @@ class MainWindow(object):
 
         if type(action) is LoadSharedLanguageAction:
             self.language = action.language
-            self.colorizesharedlanguagefilelabel()
+            self.colorsharedlanguagefilelabel()
         elif type(action) is LoadSkinAction:
             self.skin = action.skin
-            self.colorizebaseskindirectorylabel()
+            self.colorbaseskindirectorylabel()
 
         self.addmessage("info", "Done")
 
@@ -193,12 +203,12 @@ class MainWindow(object):
         return arguments
 
 
-    def colorizesharedlanguagefilelabel(self):
+    def colorsharedlanguagefilelabel(self):
         color = "blue" if self.language and self.language.languagefile == self.sharedlanguagefile.get() else "red"
         self.sharedlanguagefilelabel.configure(foreground = color)
 
 
-    def colorizebaseskindirectorylabel(self):
+    def colorbaseskindirectorylabel(self):
         color = "blue" if self.skin and self.skin.basedirectory == self.baseskindirectory.get() else "red"
         self.baseskindirectorylabel.configure(foreground = color)
         self.languagedirectorylabel.configure(foreground = color)

@@ -19,6 +19,7 @@ class Include():
         self.nested = False
         self.unit = None
         self.includes = []
+        self.nestedincludes = []
 
 
 class IncludeContentHandler(ContentHandler):
@@ -88,7 +89,7 @@ class IncludeContentHandler(ContentHandler):
         self.lastreferences.append(newreference)
         self.references.append(newreference)
         if self.lastdefinition:
-            self.lastdefinition.includes.append(newreference)
+            self.lastdefinition.nestedincludes.append(newreference)
 
 
     def parsenested(self):
@@ -137,7 +138,8 @@ class CheckIncludesAction(Action):
                     "- unused includes (include definitions that are never used);\n" + 
                     "- missing includes (include references that do not exist as an include definition);\n" + 
                     "- undeclared parameters (parameters in the reference that the include definition does not declare);\n" + 
-                    "- unasigned parameters (parameters without default value and without a value in the reference).",
+                    "- unasigned parameters (parameters without default value and without a value in the reference);\n" +
+                    "- useless nested code (reference with nested code to include definition without <nested> tag).",
             arguments = ['skin'])
 
 
@@ -180,6 +182,7 @@ class CheckIncludesAction(Action):
         self.findunusedincludes(resolution, messagecallback)
         self.findmissingincludes(resolution, messagecallback)
         self.findparametermismatches(resolution, messagecallback)
+        self.findnestedmismatches(resolution, messagecallback)
 
 
     def linkincludes(self, resolution, messagecallback):
@@ -236,4 +239,12 @@ class CheckIncludesAction(Action):
                     else:
                         definitionindex = definitionindex + 1
                         referenceindex = referenceindex + 1
+
+    def findnestedmismatches(self, resolution, messagecallback):
+        for reference in self.references:
+            definition = reference.includes[0] if len(reference.includes) > 0 else None
+            if definition:
+                if reference.nested and not definition.nested:
+                    messagecallback("message", "- Include definition without <nested> tag and nested code in reference '" + reference.name + "' (" + reference.unit.name + ")")               
+            
 

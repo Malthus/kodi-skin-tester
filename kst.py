@@ -1,6 +1,7 @@
 
 import tkinter as tk
 import tkinter.filedialog as tkfiledialog
+import kodi_baselibrary as kodi
 
 from functools import partial
 from threading import Thread
@@ -18,6 +19,7 @@ from action_checkmessages import CheckMessagesAction
 from action_checkfonts import CheckFontsAction
 from action_checkvariables import CheckVariablesAction
 from action_checkexpressions import CheckExpressionsAction
+from action_checksyntax import CheckSyntaxAction
 
 
 LOADSHAREDLANGUAGEFILE_TOOLTIP = "Select and load the standard (shared) language file.\n" + "This shared language file should contain all the messages that are available in Kodi by default."
@@ -34,7 +36,6 @@ class MainWindow(object):
 
         self.sharedlanguagefile = tk.StringVar(self.window)
         self.baseskindirectory = tk.StringVar(self.window)
-        self.languagedirectory = tk.StringVar(self.window)
 
         self.loadsharedlanguage_action = LoadSharedLanguageAction()
         self.loadskin_action = LoadSkinAction()
@@ -45,6 +46,7 @@ class MainWindow(object):
             CheckMediaFilesAction(),
             CheckMessagesAction(),
             CheckFontsAction(),
+            CheckSyntaxAction(),
             CheckVariablesAction(),
             CheckExpressionsAction()
         ]
@@ -72,8 +74,6 @@ class MainWindow(object):
         self.sharedlanguagefilelabel.place(x = 310, y = 10, width = 590, height = 30)
         self.baseskindirectorylabel = tk.Label(self.window, textvariable = self.baseskindirectory, foreground = 'red', anchor = 'w')
         self.baseskindirectorylabel.place(x = 310, y = 40, width = 590, height = 30)
-        self.languagedirectorylabel = tk.Label(self.window, textvariable = self.languagedirectory, foreground = 'red', anchor = 'w')
-        self.languagedirectorylabel.place(x = 310, y = 70, width = 590, height = 30)
 
         self.loadbuttonframe = tk.Frame()
         self.loadsharedlanguagebutton = tk.Button(master = self.loadbuttonframe, text = "Load shared language file", command = self.loadsharedlanguagefromselectedfile)
@@ -173,13 +173,11 @@ class MainWindow(object):
 
         self.sharedlanguagefile.set(self.config['DEFAULT']['shared language file'])
         self.baseskindirectory.set(self.config['DEFAULT']['base skin directory'])
-        self.languagedirectory.set(self.config['DEFAULT']['language directory'])
         
         
     def saveconfiguration(self):
         self.config['DEFAULT']['shared language file'] = self.sharedlanguagefile.get()
         self.config['DEFAULT']['base skin directory'] = self.baseskindirectory.get()
-        self.config['DEFAULT']['language directory'] = self.languagedirectory.get()
 
         with open(CONFIGFILENAME, 'w') as configfile:
             self.config.write(configfile)
@@ -194,7 +192,7 @@ class MainWindow(object):
             elif argument == 'skinbasedirectory':
                 arguments['skinbasedirectory'] = self.baseskindirectory.get()
             elif argument == 'skinlanguagedirectory':
-                arguments['skinlanguagedirectory'] = self.languagedirectory.get()
+                arguments['skinlanguagedirectory'] = kodi.LANGUAGE_DIRECTORY
             elif argument == 'skin':
                 arguments['skin'] = self.skin
             elif argument == 'sharedlanguage':
@@ -211,7 +209,6 @@ class MainWindow(object):
     def colorbaseskindirectorylabel(self):
         color = "blue" if self.skin and self.skin.basedirectory == self.baseskindirectory.get() else "red"
         self.baseskindirectorylabel.configure(foreground = color)
-        self.languagedirectorylabel.configure(foreground = color)
     
 
 MainWindow()

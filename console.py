@@ -22,21 +22,33 @@ class ThreadSafeConsole(tk.Text):
 
 
     def write(self, level, text):
-        self.queue.put([level, text])
+        self.queue.put(["write", level, text])
+
+
+    def clear(self):
+        self.queue.put(["clear"])
 
 
     def updateloop(self):
         try:
             while True:
                 message = self.queue.get_nowait()
-                level = str(message[0])
-                text = str(message[1])
-                
-                self.configure(state = "normal")
-                self.insert(tk.END, text + "\n", level)
-                self.configure(state = "disabled")
+
+                if len(message) == 3 and message[0] == "write":
+                    level = str(message[1])
+                    text = str(message[2])
+                    
+                    self.configure(state = "normal")
+                    self.insert(tk.END, text + "\n", level)
+                    self.configure(state = "disabled")
+                elif len(message) == 1 and message[0] == "clear":
+                    self.configure(state = "normal")
+                    self.delete("1.0", tk.END)
+                    self.configure(state = "disabled")
+
                 self.see(tk.END)
                 self.update_idletasks()
+                
         except Empty:
             pass
 

@@ -12,19 +12,24 @@ from tooltip import Tooltip
 from action_loadsharedlanguage import LoadSharedLanguageAction
 from action_loadskin import LoadSkinAction
 from action_checkloadedskin import CheckLoadedSkinAction
+from action_checkskinfiles import CheckSkinFilesAction
 from action_checkincludes import CheckIncludesAction
-from action_checkxmlfiles import CheckXmlFilesAction
-from action_checkmediafiles import CheckMediaFilesAction
-from action_checkmessages import CheckMessagesAction
 from action_checkfonts import CheckFontsAction
 from action_checkvariables import CheckVariablesAction
 from action_checkexpressions import CheckExpressionsAction
+from action_checkskinsettings import CheckSkinSettingsAction
 from action_checksyntax import CheckSyntaxAction
+from action_checkmessages import CheckMessagesAction
+from action_checkmediafiles import CheckMediaFilesAction
 
 
-LOADSHAREDLANGUAGEFILE_TOOLTIP = "Select and load the standard (shared) language file.\n" + "This shared language file should contain all the messages that are available in Kodi by default."
-LOADSKINFROMDIRECTORY_TOOLTIP = "Select the base directory that contains the skin files and load the skin from this directory.\n" + "The base directory of the skin is the directory with the skin's addon.xml file."
-RELOADSKIN_TOOLTIP = "Reload the skin files from the base directory.\n" + "The base directory of the skin is the directory with the skin's addon.xml file."
+LOADSHAREDLANGUAGEFILE_TOOLTIP = ("Select and load the standard (shared) language file.\n"
+    + "This shared language file should contain all the messages that are available in Kodi by default.")
+LOADSKINFROMDIRECTORY_TOOLTIP = ("Select the base directory that contains the skin files and load the skin from this directory.\n"
+    + "The base directory of the skin is the directory with the skin's addon.xml file.")
+RELOADSKIN_TOOLTIP = ("Reload the skin files from the base directory.\n"
+    + "The base directory of the skin is the directory with the skin's addon.xml file.")
+CLEARMESSAGES_TOOLTIP = "Clear the messages."
 CLOSEPROGRAM_TOOLTIP = "Exit this Kodi Skin Tester program."
 CONFIGFILENAME = 'kst.ini'
 
@@ -41,14 +46,15 @@ class MainWindow(object):
         self.loadskin_action = LoadSkinAction()
         self.checkactions = [ 
             CheckLoadedSkinAction(),
-            CheckIncludesAction(), 
-            CheckXmlFilesAction(), 
-            CheckMediaFilesAction(),
-            CheckMessagesAction(),
+            CheckSkinFilesAction(),
+            CheckIncludesAction(),
             CheckFontsAction(),
-            CheckSyntaxAction(),
             CheckVariablesAction(),
-            CheckExpressionsAction()
+            CheckExpressionsAction(),
+            CheckSkinSettingsAction(),
+            CheckSyntaxAction(),
+            CheckMessagesAction(),
+            CheckMediaFilesAction()
         ]
 
         self.window.title("Kodi Skin Tester")
@@ -65,7 +71,7 @@ class MainWindow(object):
         self.messages.configure(yscrollcommand = text_scrollbar_y.set)
 
         self.addmessage("action", "Starting Kodi Skin Tester...")
-        self.addmessage("info", "- Made by Marijn Hubert to test the Kodi skin 'Revolve'")
+        self.addmessage("info", "- Made by Malthus (Marijn Hubert) to test the Kodi skin 'Revolve'")
         self.addmessage("warning", "- Use this Kodi Skin Tester and its results at your own risk")
         self.addmessage("info", "Done")
         self.loadconfiguration()
@@ -101,6 +107,12 @@ class MainWindow(object):
             button.bind("<Enter>", partial(tooltip.show, action.description))
             button.bind("<Leave>", partial(tooltip.hide))
         self.checkbuttonframe.place(x = 10, y = 120, width = 280, height = 300)
+
+        self.clearbutton = tk.Button(master = self.window, text = "Clear", command = self.clearmessages)
+        self.clearbutton.place(x = 900, y = 630, width = 280, height = 40)
+        tooltip = Tooltip(self.clearbutton)
+        self.clearbutton.bind("<Enter>", partial(tooltip.show, CLEARMESSAGES_TOOLTIP))
+        self.clearbutton.bind("<Leave>", partial(tooltip.hide))
 
         self.exitbutton = tk.Button(master = self.window, text = "Close", command = self.exitprogram)
         self.exitbutton.place(x = 10, y = 630, width = 280, height = 40)
@@ -157,6 +169,10 @@ class MainWindow(object):
         thread.daemon = True
         thread.start()
         thread.join()
+
+
+    def clearmessages(self):
+        self.messages.clear()
 
 
     def exitprogram(self):

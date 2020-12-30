@@ -10,8 +10,8 @@ class CheckLoadedSkinAction(Action):
             name = "Display loaded skin information", 
             function = self.displayloadedskin, 
             description = "Show some detailed information about:\n" + 
-                    "- the currently loaded standard (shared) language file;\n" + 
-                    "- the currently loaded skin.",
+                    "- the currently loaded standard (shared) language file\n" + 
+                    "- the currently loaded skin",
             arguments = ['skin', 'sharedlanguage'])
 
 

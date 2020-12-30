@@ -31,7 +31,7 @@ class VariableContentHandler(ContentHandler):
                 variable.unit = self.unit
                 self.definitions.append(variable)
             else:
-                self.messages.append("Nameless variable definition in unit '" + self.unit + "'")
+                self.messages.append("Nameless variable definition")
         else:
             for key, value in attributes.items():
                 self.parseforvariablereference(value)
@@ -55,7 +55,7 @@ class VariableContentHandler(ContentHandler):
                 variable.unit = self.unit
                 self.references.append(variable)
             else:
-                self.messages.append("Nameless variable reference in unit '" + self.unit + "'")
+                self.messages.append("Nameless variable reference")
 
             index = content.find(kodi.VARIABLE_IDENTIFIER, end)
 
@@ -79,9 +79,9 @@ class CheckVariablesAction(Action):
             name = "Check variables", 
             function = self.checkvariables, 
             description = "Check variables, both the definitions and the references for:\n" + 
-                    "- duplicate variables (variable definitions with the same name);\n" + 
-                    "- unused variables (variable definitions that are never used);\n" + 
-                    "- missing variables (variable references that do not exist as a variable definition).",
+                    "- duplicate variables (variable definitions with the same name)\n" + 
+                    "- unused variables (variable definitions that are never used)\n" + 
+                    "- missing variables (variable references that do not exist as a variable definition)",
             arguments = ['skin'])
 
 
@@ -111,7 +111,7 @@ class CheckVariablesAction(Action):
             messages = contenthandler.messages
 
             for message in messages:
-                messagecallback("warning", "- File " + unit.name + ": " + message)
+                messagecallback("warning", "- " + unit.name + ": " + message)
 
         messagecallback("info", "- Number of variables: " + str(len(self.definitions)))
         messagecallback("info", "- Number of references: " + str(len(self.references)))
@@ -135,7 +135,7 @@ class CheckVariablesAction(Action):
         
         for definition in self.definitions:
             if definition.name not in referencednames:
-                messagecallback("message", "- Unused variable: " + definition.name + " (" + definition.unit.name + ")")
+                messagecallback("message", "- " + definition.unit.name + ": Unused variable '" + definition.name + "'")
     
 
     def findmissingvariables(self, resolution, messagecallback):

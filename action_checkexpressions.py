@@ -78,10 +78,10 @@ class CheckExpressionsAction(Action):
         super().__init__(
             name = "Check expressions", 
             function = self.checkexpressions, 
-            description = "*WIP*\nCheck expressions, both the definitions and the references for:\n" + 
-                    "- duplicate expressions (expression definitions with the same name);\n" + 
-                    "- unused expressions (expression definitions that are never used);\n" + 
-                    "- missing expressions (expression references that do not exist as an expression definition).",
+            description = "Check expressions, both the definitions and the references for:\n" + 
+                    "- *WIP* duplicate expressions (expression definitions with the same name)\n" + 
+                    "- *WIP* unused expressions (expression definitions that are never used)\n" + 
+                    "- *WIP* missing expressions (expression references that do not exist as an expression definition)",
             arguments = ['skin'])
 
 
@@ -111,7 +111,7 @@ class CheckExpressionsAction(Action):
             messages = contenthandler.messages
 
             for message in messages:
-                messagecallback("warning", "- File " + unit.name + ": " + message)
+                messagecallback("warning", "- " + unit.name + ": " + message)
 
         messagecallback("info", "- Number of expressions: " + str(len(self.definitions)))
         messagecallback("info", "- Number of references: " + str(len(self.references)))
@@ -135,7 +135,7 @@ class CheckExpressionsAction(Action):
         
         for definition in self.definitions:
             if definition.name not in referencednames:
-                messagecallback("message", "- Unused expression: " + definition.name + " (" + definition.unit.name + ")")
+                messagecallback("message", "- " + definition.unit.name + ": Unused expression: " + definition.name)
     
 
     def findmissingexpressions(self, resolution, messagecallback):
@@ -143,5 +143,5 @@ class CheckExpressionsAction(Action):
         
         for reference in self.references:
             if reference.name not in declarednames:
-                messagecallback("warning", "- Reference to non-existing (missing) expression: " + reference.name + " (" + reference.unit.name + ")")
+                messagecallback("warning", "- " + reference.unit.name + ": Reference to non-existing (missing) expression: " + reference.name)
 

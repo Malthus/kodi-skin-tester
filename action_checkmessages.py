@@ -16,7 +16,7 @@ class MessageContentHandler(ContentHandler):
 
 
     def startElement(self, tag, attributes):
-        if tag == kodi.LABEL_ELEMENT:
+        if tag == kodi.LABEL_ELEMENT or tag == kodi.LABEL2_ELEMENT or tag == kodi.ALTLABEL_ELEMENT:
             self.insidelabelelement = True
         elif tag == kodi.PARAM_ELEMENT and 'value' in attributes:
             self.parselocalize(attributes['value'])
@@ -74,9 +74,9 @@ class CheckMessagesAction(Action):
             name = "Check language files and messages", 
             function = self.checkmessages, 
             description = "Check messages in skin-specific language file for:\n" + 
-                    "- duplicate entries within the skin-specific language file (texts that appear multiple times in the skin-specific language file);\n" + 
-                    "- duplicate entries with the standard language file (texts that appear in both the skin-specific and the standard language file);\n" + 
-                    "- unused entries (texts with numbers that are never used).",
+                    "- duplicate entries within the skin-specific language file (texts that appear multiple times in the skin-specific language file)\n" + 
+                    "- duplicate entries with the standard language file (texts that appear in both the skin-specific and the standard language file)\n" + 
+                    "- unused entries (texts with numbers that are never used)",
             arguments = ['skin', 'sharedlanguage'])
 
 
@@ -105,7 +105,7 @@ class CheckMessagesAction(Action):
             messages = contenthandler.messages
             
             for message in messages:
-                messagecallback("warning", "- File " + unit.name + ": " + message)
+                messagecallback("warning", "- " + unit.name + ": " + message)
 
         messagecallback("info", "- Number of referenced messages: " + str(len(self.messagecodes)))
 

@@ -62,7 +62,7 @@ class IncludeContentHandler(ContentHandler):
             elif self.lastfileinclude:
                 self.lastfileinclude = False
             else:
-                self.messages.append("End of include without matching start-tag (" + self.unit.name + ")" )
+                self.messages.append("End of include without matching start-tag" )
 
 
     def characters(self, content):
@@ -96,7 +96,7 @@ class IncludeContentHandler(ContentHandler):
         if self.lastdefinition:
             self.lastdefinition.nested = True
         else:
-            self.messages.append("Failed to find matching include definition with nested tag (" + self.unit.name + ")")
+            self.messages.append("Failed to find matching include definition with nested tag")
     
 
     def parseparam(self, attributes):
@@ -104,14 +104,14 @@ class IncludeContentHandler(ContentHandler):
             if 'value' in attributes:
                 self.lastreferences[-1].parameters[attributes['name']] = attributes['value']
             if 'default' in attributes:
-                self.messages.append("Default value in include reference '" + self.lastreferences[-1].name + "' (" + self.unit.name + ")")
+                self.messages.append("Default value in include reference '" + self.lastreferences[-1].name + "'")
         elif self.lastdefinition:
             if 'default' in attributes:
                 self.lastdefinition.parameters[attributes['name']] = attributes['default']
             if 'name' in attributes and not 'default' in attributes:
                 self.lastdefinition.parameters[attributes['name']] = None
             if 'value' in attributes:
-                self.messages.append("Normal value in include definition '" + self.lastdefinition.name + "' (" + self.unit.name + ")")
+                self.messages.append("Normal value in include definition '" + self.lastdefinition.name + "'")
     
 
     def determineincludetype(self, attributes):
@@ -134,12 +134,12 @@ class CheckIncludesAction(Action):
             name = "Check includes", 
             function = self.checkincludes, 
             description = "Check includes, both the definitions and the references for:\n" + 
-                    "- duplicate includes (include definitions with the same name);\n" + 
-                    "- unused includes (include definitions that are never used);\n" + 
-                    "- missing includes (include references that do not exist as an include definition);\n" + 
-                    "- undeclared parameters (parameters in the reference that the include definition does not declare);\n" + 
-                    "- unasigned parameters (parameters without default value and without a value in the reference);\n" +
-                    "- useless nested code (reference with nested code to include definition without <nested> tag).",
+                    "- duplicate includes (include definitions with the same name)\n" + 
+                    "- unused includes (include definitions that are never used)\n" + 
+                    "- missing includes (include references that do not exist as an include definition)\n" + 
+                    "- undeclared parameters (parameters in the reference that the include definition does not declare)\n" + 
+                    "- unasigned parameters (parameters without default value and without a value in the reference)\n" +
+                    "- useless nested code (reference with nested code to include definition without <nested> tag)",
             arguments = ['skin'])
 
 
@@ -169,7 +169,7 @@ class CheckIncludesAction(Action):
             messages = contenthandler.messages
 
             for message in messages:
-                messagecallback("warning", message)
+                messagecallback("warning", "- " + unit.name + ": " + message)
 
         messagecallback("info", "- Number of includes: " + str(len(self.definitions)))
         messagecallback("info", "- Number of references: " + str(len(self.references)))
@@ -199,21 +199,21 @@ class CheckIncludesAction(Action):
         for startindex, definition in enumerate(self.definitions):
             for index in range(startindex + 1, len(self.definitions)):
                 if (definition.name == self.definitions[index].name):
-                    messagecallback("warning", "- Duplicate include '" + definition.name + "' (" + definition.unit.name + " ~ " + self.definitions[index].unit.name + ")")
+                    messagecallback("warning", "- " + definition.unit.name + ": Duplicate include '" + definition.name + "' found in " + self.definitions[index].unit.name)
 
 
     def findunusedincludes(self, resolution, messagecallback):
         unuseddefinitions = [ definition for definition in self.definitions if len(definition.includes) == 0 ]
         
         for definition in unuseddefinitions:
-            messagecallback("message", "- Unused include '" + definition.name + "' (" + definition.unit.name + ")")
+            messagecallback("message", "- " + definition.unit.name + ": Unused include '" + definition.name + "'")
 
 
     def findmissingincludes(self, resolution, messagecallback):
         missingdefinitions = [ reference for reference in self.references if len(reference.includes) == 0 ]
         
         for reference in missingdefinitions:
-            messagecallback("warning", "- Reference to non-existing (missing) include '" + reference.name + "' (" + reference.unit.name + ")")
+            messagecallback("warning", "- " + reference.unit.name + ": Reference to missing include '" + reference.name + "' (include not defined)")
 
 
     def findparametermismatches(self, resolution, messagecallback):
@@ -231,20 +231,21 @@ class CheckIncludesAction(Action):
                 
                     if definitionparam is not None and (referenceparam is None or definitionparam < referenceparam):
                         if definition.parameters[definitionparam] is None:
-                            messagecallback("warning", "- Missing (unassigned) parameter '" + definitionparam +"' without default value in reference '" + reference.name + "' (" + reference.unit.name + ")")               
+                            messagecallback("warning", "- " + reference.unit.name + ": Missing (unassigned) parameter '" + definitionparam +"' without default value in reference '" + reference.name + "'")
                         definitionindex = definitionindex + 1
                     elif referenceparam is not None and (definitionparam is None or definitionparam > referenceparam):
-                        messagecallback("message", "- Unknown (undeclared) parameter '" + referenceparam + "' in reference '" + reference.name + "' (" + reference.unit.name + ")")               
+                        messagecallback("message", "- " + reference.unit.name + ": Unknown (undeclared) parameter '" + referenceparam + "' in reference '" + reference.name + "'")
                         referenceindex = referenceindex + 1
                     else:
                         definitionindex = definitionindex + 1
                         referenceindex = referenceindex + 1
+
 
     def findnestedmismatches(self, resolution, messagecallback):
         for reference in self.references:
             definition = reference.includes[0] if len(reference.includes) > 0 else None
             if definition:
                 if reference.nested and not definition.nested:
-                    messagecallback("message", "- Include definition without <nested> tag and nested code in reference '" + reference.name + "' (" + reference.unit.name + ")")               
-            
+                    messagecallback("message", "- " + reference.unit.name + ": Include definition without <nested> tag and nested code in reference '" + reference.name + "'")
+
 

@@ -14,18 +14,21 @@ class SyntaxContentHandler(ContentHandler):
 
 
     def startElement(self, tag, attributes):
+        if tag not in kodi.XML_ELEMENTS:
+            self.messages.append("Unrecognized XML-element " + tag + " in this file")
+
         for key, value in attributes.items():
             if not self.checktokenbalance(value):
-                self.messages.append("Token-imbalance in attribute '" + key + "' of tag '" + tag + "' in unit '" + self.unit.name + "'")
+                self.messages.append("Token-imbalance in attribute '" + key + "' of tag '" + tag + "'")
             if not self.checkdollarprefix(value):
-                self.messages.append("Strange dollar-sign in attribute '" + key + "' of tag '" + tag + "' in unit '" + self.unit.name + "'")
+                self.messages.append("Strange dollar-sign in attribute '" + key + "' of tag '" + tag + "'")
 
 
     def characters(self, content):
         if not self.checktokenbalance(content):
-            self.messages.append("Token-imbalance in content '" + content + "' in unit '" + self.unit.name + "'")
+            self.messages.append("Token-imbalance in content '" + content + "'")
         if not self.checkdollarprefix(content):
-            self.messages.append("Strange dollar-sign in content '" + content + "' in unit '" + self.unit.name + "'")
+            self.messages.append("Strange dollar-sign in content '" + content + "'")
 
 
     def checktokenbalance(self, content):
@@ -66,9 +69,10 @@ class CheckSyntaxAction(Action):
         super().__init__(
             name = "Check syntax", 
             function = self.checkexpressions, 
-            description = "*WIP*\nCheck several aspects of the syntax:\n" + 
-                    "- imbalance in brackets, cury brackets, and parentheses;\n" + 
-                    "- unrecognized content with dollar sign prefix (not $INFO/$LOCALIZE/$PARAM/$VAR/$EXP/$NUMBER/$COMMA/$ADDON).",
+            description = "Check several aspects of the syntax:\n" + 
+                    "- *WIP* unrecognized XML-elements\n" +
+                    "- *WIP* imbalance in brackets, cury brackets, and parentheses\n" + 
+                    "- *WIP* unrecognized content with dollar sign prefix (not $INFO/$LOCALIZE/$PARAM/$VAR/$EXP/$NUMBER/$COMMA/$ADDON)",
             arguments = ['skin'])
 
 
@@ -89,5 +93,5 @@ class CheckSyntaxAction(Action):
             messages = contenthandler.messages
 
             for message in messages:
-                messagecallback("warning", message)
+                messagecallback("warning", "- " + unit.name + ": " + message)
 

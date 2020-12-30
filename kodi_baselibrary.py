@@ -13,33 +13,89 @@ RESOLUTION_PATH = "/addon/extension/res"
 
 ADDON_ELEMENT = "addon"
 RESOLUTION_ELEMENT = "res"
+ASSETS_ELEMENT = "assets"
+IMPORT_ELEMENT = "import"
+ICON_ELEMENT = "icon"
+FANART_ELEMENT = "fanart"
+SCREENSHOT_ELEMENT = "screenshot"
+
 INCLUDE_ELEMENT = "include"
 PARAM_ELEMENT = "param"
 NESTED_ELEMENT = "nested"
-INFOLABEL_ELEMENT = "info"
-LABEL_ELEMENT = "label"
+
 VARIABLE_ELEMENT = "variable"
 EXPRESSION_ELEMENT = "expression"
-TEXTURE_ELEMENT = "texture"
-TEXTUREFOCUS_ELEMENT = "texturefocus"
-TEXTURENOFOCUS_ELEMENT = "texturenofocus"
-TEXTURESLIDERBACKGROUND_ELEMENT = "texturesliderbackground"
-TEXTURESLIDERBAR_ELEMENT = "texturesliderbar"
-TEXTURESLIDERBARFOCUS_ELEMENT = "texturesliderbarfocus"
-ALTTEXTUREFOCUS_ELEMENT = "alttexturefocus"
-ALTTEXTURENOFOCUS_ELEMENT = "alttexturenofocus"
-MIDTEXTURE_ELEMENT = "midtexture"
-FONTS_ELEMENT = "fonts"
+CONSTANT_ELEMENT = "constant"
+
+LABEL_ELEMENT = "label"
+LABEL2_ELEMENT = "label2"
+ALTLABEL_ELEMENT = "altlabel"
+VIEWTYPE_ELEMENT = "viewtype"
+
 FONTSET_ELEMENT = "fontset"
 FONT_ELEMENT = "font"
 NAME_ELEMENT = "name"
 FILENAME_ELEMENT = "filename"
-ASSETS_ELEMENT = "assets"
-IMPORT_ELEMENT = "import"
-VIEWTYPE_ELEMENT = "viewtype"
 
-TEXTURE_ELEMENTS = [TEXTURE_ELEMENT, TEXTUREFOCUS_ELEMENT, TEXTURENOFOCUS_ELEMENT, TEXTURESLIDERBACKGROUND_ELEMENT, TEXTURESLIDERBAR_ELEMENT, TEXTURESLIDERBARFOCUS_ELEMENT, 
-        ALTTEXTUREFOCUS_ELEMENT, ALTTEXTURENOFOCUS_ELEMENT, MIDTEXTURE_ELEMENT]
+#INCLUDES_ELEMENT = "includes"
+#THUMB_ELEMENT = "thumb"
+#DEFINITION_ELEMENT = "definition"
+#WINDOW_ELEMENT = "window"
+#COORDINATES_ELEMENT = "coordinates"
+#SYSTEM_ELEMENT = "system"
+#DESCRIPTION_ELEMENT = "description"
+#PROPERTY_ELEMENT = "property"
+#CONTROLS_ELEMENT = "controls"
+#CONTROL_ELEMENT = "control"
+#DEFAULTCONTROL_ELEMENT = "defaultcontrol"
+#MENUCONTROL_ELEMENT = "menucontrol"
+#VIEWS_ELEMENT = "views"
+#DEFAULT_ELEMENT = "default"
+#INFOLABEL_ELEMENT = "info"
+#VALUE_ELEMENT = "value"
+#VISIBLE_ELEMENT = "visible"
+#ENABLE_ELEMENT = "enable"
+#ZORDER_ELEMENT = "zorder"
+#POSX_ELEMENT = "posx"
+#POSY_ELEMENT = "posy"
+#TOP_ELEMENT  = "top"
+#LEFT_ELEMENT = "left"
+#WIDTH_ELEMENT = "width"
+#HEIGHT_ELEMENT = "height"
+#INFO_ELEMENT = "info"
+
+
+STRUCTURE_ELEMENTS = ["window", "coordinates", "system", "description", "controls", "control", 
+        "defaultcontrol", "menucontrol", "variable", "value", "expression", "constant", "property", "icon", "thumb", "viewtype", "views", "default"]
+INCLUDE_ELEMENTS = ["includes", "include", "definition", "param", "nested"]
+POSITION_ELEMENTS = ["zorder", "posx", "posy", "top", "left"]
+DIMENSION_ELEMENTS = ["width", "height"]
+
+CONTROL_ELEMENTS = ["textcolor", "focusedcolor", "disabledcolor", "selectedcolor", "pulseonselect", "selected", "usealttexture", "textoffsetx"]
+LABEL_ELEMENTS = ["label", "label2", "altlabel", "info", "align", "aligny", "scroll", "scrollspeed", "scrollsuffix", "wrapmultiline", "angle"]
+TEXTURE_ELEMENTS = ["texture", "texturefocus", "texturenofocus", "alttexturefocus", "alttexturenofocus", "aspectratio", "colordiffuse"]
+PROGRESS_ELEMENTS = ["midtexture", "lefttexture", "righttexture", "overlaytexture", "texturebg"]
+SCROLL_SLIDER_ELEMENTS = ["sliderwidth", "sliderheight", "texturesliderbar", "textureslidernib", "textureslidernibfocus", 
+        "texturesliderbackground", "texturesliderbarfocus", "showonepage", "orientation", "action"]
+RADIOBUTTON_ELEMENTS = ["radiowidth", "radioheight", "radioposx", "textureradioonfocus", "textureradioofffocus", "textureradioonnofocus", "textureradiooffnofocus", 
+        "textureradioondisabled", "textureradiooffdisabled"]
+SPINCONTROL_ELEMENTS = ["spinwidth", "spinheight", "textureup", "texturedown", "textureupfocus", "texturedownfocus", "textureupdisabled", "texturedowndisabled", "reverse"]
+IMAGE_ELEMENTS = ["timeperimage", "randomize", "imagepath", "loop"]
+CONTAINER_ELEMENTS = ["focusposition", "pagecontrol", "itemgap", "autoscroll", "itemlayout", "focusedlayout", "content", "item", "scrolltime", "showonepage", 
+        "usecontrolcoords", "preloaditems"]
+EPG_ELEMENTS = ["progresstexture", "timeblocks", "rulerunit", "rulerlayout", "channellayout", "focusedchannellayout"]
+
+FONT_ELEMENTS = ["fonts", "fontset", "font", "name", "filename", "size", "style", "linespacing"]
+RSSFEED_ELEMENTS = ["titlecolor", "headlinecolor", "urlset"]
+DISPLAY_ELEMENTS = ["fadetime", "animation", "effect", "videofilter", "stretchmode", "rotation"]
+BEHAVIOUR_ELEMENTS = ["visible", "enable"]
+EVENT_ELEMENTS = ["onfocus", "onclick", "onup", "ondown", "onleft", "onright", "onback", "onload", "onunload", "altclick"]
+
+XML_ELEMENTS = (STRUCTURE_ELEMENTS + INCLUDE_ELEMENTS + POSITION_ELEMENTS + DIMENSION_ELEMENTS 
+        + LABEL_ELEMENTS + TEXTURE_ELEMENTS + IMAGE_ELEMENTS + CONTAINER_ELEMENTS + EPG_ELEMENTS 
+        + PROGRESS_ELEMENTS + SCROLL_SLIDER_ELEMENTS + RADIOBUTTON_ELEMENTS + SPINCONTROL_ELEMENTS 
+        + CONTROL_ELEMENTS + FONT_ELEMENTS 
+        + RSSFEED_ELEMENTS + DISPLAY_ELEMENTS + BEHAVIOUR_ELEMENTS + EVENT_ELEMENTS)
 
 COMMA_IDENTIFIER = "$COMMA"
 INFOLABEL_IDENTIFIER = "$INFO"
@@ -52,8 +108,36 @@ EXPRESSION_IDENTIFIER = "$EXP"
 NUMBER_IDENTIFIER = "$NUMBER"
 ADDON_IDENTIFIER = "$ADDON"
 
-PARAMETERIZED_IDENTIFIERS = [INFOLABEL_IDENTIFIER, ESCAPEDINFOLABEL_IDENTIFIER, LOCALIZE_IDENTIFIER, PARAMETER_IDENTIFIER, VARIABLE_IDENTIFIER, ESCAPEDVARIABLE_IDENTIFIER, 
+PARAMETERIZED_IDENTIFIERS = [INFOLABEL_IDENTIFIER, ESCAPEDINFOLABEL_IDENTIFIER, LOCALIZE_IDENTIFIER, 
+        PARAMETER_IDENTIFIER, VARIABLE_IDENTIFIER, ESCAPEDVARIABLE_IDENTIFIER, 
         EXPRESSION_IDENTIFIER, NUMBER_IDENTIFIER, ADDON_IDENTIFIER]
+
+XML_FILES = ["AddonBrowser.xml", 
+        "DialogAccessPoints.xml", "DialogAddonInfo.xml", "DialogAddonSettings.xml", "DialogBusy.xml", "DialogButtonMenu.xml", "DialogConfirm.xml", "DialogContextMenu.xml",
+        "DialogExtendedProgressBar.xml", "DialogFavourites.xml", "DialogFullScreenInfo.xml", "DialogGameControllers.xml", "DialogKeyboard.xml", "DialogMediaSource.xml",
+        "DialogMusicInfo.xml", "DialogNotification.xml", "DialogNumeric.xml", "DialogPictureInfo.xml", "DialogPlayerProcessInfo.xml", 
+        "DialogPVRChannelGuide.xml", "DialogPVRChannelManager.xml", "DialogPVRChannelsOSD.xml", "DialogPVRGroupManager.xml", "DialogPVRGuideSearch.xml", "DialogPVRInfo.xml",
+        "DialogPVRRadioRDSInfo.xml", "DialogSeekBar.xml", "DialogSelect.xml", "DialogSettings.xml", "DialogSlider.xml", "DialogSubtitles.xml",
+        "DialogTextViewer.xml", "DialogVideoInfo.xml", "DialogVolumeBar.xml",
+        "EventLog.xml", "FileBrowser.xml", "FileManager.xml",
+        "Font.xml", "GameOSD.xml", "Home.xml", "Includes.xml", "LoginScreen.xml",
+        "MusicOSD.xml", "MusicVisualisation.xml", 
+        "MyGames.xml",
+        "MyMusicNav.xml", "MyMusicPlaylistEditor.xml",
+        "MyPics.xml",
+        "MyPlaylist.xml",
+        "MyPrograms.xml",
+        "MyPVRChannels.xml", "MyPVRGuide.xml", "MyPVRRecordings.xml", "MyPVRSearch.xml", "MyPVRTimers.xml",
+        "MyVideoNav.xml",
+        "MyWeather.xml",
+        "PlayerControls.xml",
+        "Pointer.xml",
+        "Settings.xml", "SettingsCategory.xml", "SettingsProfile.xml", "SettingsScreenCalibration.xml", "SettingsSystemInfo.xml", "SkinSettings.xml",
+        "SlideShow.xml",
+        "SmartPlaylistEditor.xml",
+        "SmartPlaylistRule.xml",
+        "Startup.xml",
+        "VideoFullScreen.xml", "VideoOSD.xml", "VideoOSDBookmarks.xml"]
 
 LOCALIZE_FIRSTSKINKEY = 31000
 LOCALIZE_LASTSKINKEY = 32000

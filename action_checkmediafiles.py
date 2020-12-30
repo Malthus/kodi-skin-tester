@@ -2,6 +2,7 @@
 from os import listdir
 from os.path import join, isdir, isfile
 from xml.sax import ContentHandler, parseString
+from PIL import Image
 
 from action import Action
 import kodi_baselibrary as kodi
@@ -10,6 +11,7 @@ import kodi_baselibrary as kodi
 class MediaFileContentHandler(ContentHandler):
 
     def __init__(self, unit):
+        self.textureelements = [ element for element in kodi.TEXTURE_ELEMENTS if element != "aspectratio" ] 
         self.unit = unit
         self.texturefiles = []
         self.mediafiles = []
@@ -18,7 +20,7 @@ class MediaFileContentHandler(ContentHandler):
 
 
     def startElement(self, tag, attributes):
-        if tag in kodi.TEXTURE_ELEMENTS:
+        if tag in self.textureelements:
             self.insidetextureelement = True
 
         for key, value in attributes.items():
@@ -50,7 +52,9 @@ class CheckMediaFilesAction(Action):
             function = self.checkmediafiles, 
             description = "Check media (image) files for:\n" + 
                     "- missing image files (image files that are used in the skin files but are missing from the file system)\n" + 
-                    "- unused images files (image files that are present in the skin directories but not used in the skin files)",
+                    "- unused images files (image files that are present in the skin directories but not used in the skin files)\n" +
+                    "- *WIP* invalid image files (images that are too small for the TexturePacker tool)\n" + 
+                    "- invalid sizes of icon and fanart images",
             arguments = ['skin'])
 
 
@@ -62,10 +66,46 @@ class CheckMediaFilesAction(Action):
         self.initializemediafiles(baseskindirectory, skin)
         self.readmediafiles(baseskindirectory, messagecallback)
         messagecallback("info", "- Skin resolution(s): " + ", ".join([ resolution.aspect + " (" + resolution.directory + ")" for resolution in skin.resolutions ]))
+        self.checkiconfile(skin, messagecallback)
+        self.checkfanartfile(skin, messagecallback)
         for resolution in skin.resolutions:
             self.parsemediafiles(resolution, messagecallback)
 
         self.analyzemediafiles(baseskindirectory, resolution, messagecallback)
+
+
+    def checkiconfile(self, skin, messagecallback):
+        iconimagefile = next((asset.file for asset in skin.assets if asset.type == kodi.ICON_ELEMENT), None)
+
+        if iconimagefile is not None:
+            baseskindirectory = skin.basedirectory        
+            file = join(baseskindirectory, iconimagefile)
+            iconimage = Image.open(file)
+            (iconwidth, iconheight) = iconimage.size
+    
+            if (iconwidth == 256 and iconheight == 256) or (iconwidth == 512 and iconheight == 512):
+                messagecallback("info", "- " + iconimagefile + ": Icon image size is " + str(iconwidth) + " x " + str(iconheight))
+            else:
+                messagecallback("warning", "- " + iconimagefile + ": Invalid icon image size (" + str(iconwidth) + " x " + str(iconheight) + ")")
+        else:
+            messagecallback("warning", "- " + kodi.ADDON_FILENAME + ": Missing icon-file resource")
+
+
+    def checkfanartfile(self, skin, messagecallback):
+        fanartimagefile = next((asset.file for asset in skin.assets if asset.type == kodi.FANART_ELEMENT), None)
+
+        if fanartimagefile is not None:
+            baseskindirectory = skin.basedirectory
+            file = join(baseskindirectory, fanartimagefile)
+            fanartimage = Image.open(file)
+            (fanartwidth, fanartheight) = fanartimage.size
+    
+            if (fanartwidth == 1280 and fanartheight == 720) or (fanartwidth == 1920 and fanartheight == 1080) or (fanartwidth == 3840 and fanartheight == 2160):
+                messagecallback("info", "- " + fanartimagefile + ": Fanart image size is " + str(fanartwidth) + " x " + str(fanartheight))
+            else:
+                messagecallback("warning", "- " + fanartimagefile + ": Invalid fanart image size (" + str(fanartwidth) + " x " + str(fanartheight) + ")")
+        else:
+            messagecallback("message", "- " + kodi.ADDON_FILENAME + ": Missing fanart-file resource")
 
 
     def initializemediafiles(self, baseskindirectory, skin):
@@ -149,7 +189,4 @@ class CheckMediaFilesAction(Action):
 
     def processfile(self, file):
         return file.replace('\\', '/')
-
-    
-
 
